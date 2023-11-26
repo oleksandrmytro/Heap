@@ -9,6 +9,8 @@ public interface IAgenda {
     Obec najdi(String key);
     void vloz(Obec obec);
     Obec odeber(String key);
+    Obec odeberMax();
+    void reoraginace(Obec[] array);
     Iterator<Obec> vytvorIterator(eTypProhl typ);
     Obec generuj();
 }

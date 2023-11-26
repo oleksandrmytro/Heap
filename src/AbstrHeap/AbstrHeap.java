@@ -1,5 +1,9 @@
 package AbstrHeap;
 
+import abstrTable.AbstrLIFO;
+import abstrTable.eTypProhl;
+
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
@@ -54,15 +58,13 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
     }
 
     @Override
-    public void prebuduj(K[] array) {
+    public void reorganizace(K[] array) {
         n = array.length;
         arr = new Arr[n + 1];
         for(int i = 0; i < n; i++) {
             arr[i + 1] = new Arr<>(array[i]);
         }
-        for(int i = n / 2; i > 0; i--) {
-            heapifyDown(i, n);
-        }
+        vybuduj();
     }
 
     @Override
@@ -161,9 +163,57 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
     }
 
     @Override
-    public void vypis() {
+    public Iterator<K> vypis(eTypProhl typ) {
+        switch (typ) {
+            case SIRKA -> {
+                return new Iterator<>() {
 
+                    int i = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return i + 1 <= n;
+                    }
+
+                    @Override
+                    public K next() {
+                        if (!hasNext()) throw new NoSuchElementException();
+                        i++;
+                        return arr[i].elem;
+                    }
+                };
+            }
+
+            case HLOUBKA -> {
+                AbstrLIFO<Integer> lifo = new AbstrLIFO<>();
+                return new Iterator<>() {
+
+                    int curr = 1;
+
+                    @Override
+                    public boolean hasNext() {
+                        return curr <= n || !lifo.jePrazdny();
+                    }
+
+                    @Override
+                    public K next() {
+                        while (curr <= n) {
+                            lifo.vloz(curr);
+                            curr = curr * 2;
+                        }
+
+                        curr = lifo.odeber();
+                        int result = curr;
+                        curr = curr * 2 + 1;
+
+                        return arr[result].elem;
+                    }
+                };
+            }
+        }
+        return null;
     }
+
     private int leftChild(int i) {
         return 2 * i;
     }

@@ -1,5 +1,6 @@
 package AgendaKraj;
 
+import AbstrHeap.AbstrHeap;
 import abstrTable.AbstrTable;
 import abstrTable.Obec;
 import abstrTable.eTypProhl;
@@ -11,6 +12,7 @@ import nacteniAulozeni.UlozeniAnacteni;
 public class Agenda implements IAgenda {
 
     private AbstrTable<Obec, Obec> at = new AbstrTable<>();
+    private AbstrHeap<Obec> ah = new AbstrHeap<Obec>();
     private Random random = new Random();
     
     @Override
@@ -29,12 +31,23 @@ public class Agenda implements IAgenda {
 
     @Override
     public void vloz(Obec obec) {
-        at.vloz(obec, obec);
+        ah.vloz(obec);
     }
     @Override
     public Obec odeber(String key) {
         return at.odeber(new Obec(key));
     }
+
+    @Override
+    public Obec odeberMax() {
+        return null;
+    }
+
+    @Override
+    public void reoraginace(Obec[] array) {
+
+    }
+
 
     @Override
     public Iterator<Obec> vytvorIterator(eTypProhl typ) {
