@@ -69,6 +69,7 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
     public void zrus() {
         this.n = 0;
         this.arr = null;
+        arr = null;
     }
 
     @Override
