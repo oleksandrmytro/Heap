@@ -3,7 +3,8 @@ package AgendaKraj;
 import AbstrHeap.AbstrHeap;
 import abstrTable.AbstrTable;
 import abstrTable.Obec;
-import abstrTable.eTypProhl;
+import enumTypy.ePorovnani;
+import enumTypy.eTypProhl;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Random;
@@ -44,7 +45,7 @@ public class Agenda implements IAgenda {
     }
 
     @Override
-    public void reoraginace(Obec[] array) {
+    public void reoraginace(ePorovnani typPorovnani) {
 
     }
 

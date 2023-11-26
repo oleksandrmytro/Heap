@@ -2,7 +2,7 @@ package nacteniAulozeni;
 
 import AgendaKraj.Agenda;
 import abstrTable.Obec;
-import abstrTable.eTypProhl;
+import enumTypy.eTypProhl;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

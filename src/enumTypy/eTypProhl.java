@@ -1,4 +1,4 @@
-package abstrTable;
+package enumTypy;
 
 public enum eTypProhl {
     HLOUBKA,

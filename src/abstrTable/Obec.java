@@ -1,5 +1,7 @@
 package abstrTable;
 
+import enumTypy.ePorovnani;
+
 public class Obec implements Comparable<Obec>{
 
     private int cisloKraje;
@@ -8,6 +10,7 @@ public class Obec implements Comparable<Obec>{
     private int pocetMuzu;
     private int pocetZen;
     private int celkem;
+    private static ePorovnani aktualniEPorovnani = ePorovnani.NAZEV;
 
     public Obec(int cisloKraje, int psc, String nazevObce, int pocetMuzu, int pocetZen) {
         this.cisloKraje = cisloKraje;
@@ -70,9 +73,17 @@ public class Obec implements Comparable<Obec>{
         this.celkem = celkem;
     }
 
+    public static void setAktualniPorovnani(ePorovnani aktualniEPorovnani) {
+        Obec.aktualniEPorovnani = aktualniEPorovnani;
+    }
+
     @Override
     public int compareTo(Obec o) {
-        return nazevObce.compareTo(o.nazevObce); // nazevObce
+        if (aktualniEPorovnani == ePorovnani.POCET_OBYVATELU) {
+            return Integer.compare(this.celkem, o.celkem);
+        } else {
+            return this.nazevObce.compareTo(o.nazevObce);
+        }
     }
 
     @Override

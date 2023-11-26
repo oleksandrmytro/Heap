@@ -2,7 +2,8 @@ package gui;
 
 import AgendaKraj.Agenda;
 import abstrTable.Obec;
-import abstrTable.eTypProhl;
+import enumTypy.ePorovnani;
+import enumTypy.eTypProhl;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Optional;
@@ -28,6 +29,8 @@ public class MainFX extends Application {
     private Agenda agenda;
     private ListView<Obec> obciListView;
     ObservableList<eTypProhl> list = FXCollections.observableArrayList(eTypProhl.values());
+    ObservableList<ePorovnani> porovnani = FXCollections.observableArrayList(ePorovnani.values());
+    ComboBox typPorovnani = new ComboBox(porovnani);
     ComboBox typItrCB = new ComboBox(list);
     public static final String OBEC_FILE_NAME = "obce.txt";
 
@@ -83,7 +86,12 @@ public class MainFX extends Application {
             obnov();
         });
 
-        buttonsRight.getChildren().addAll(addButton, deleteButton, searchButton, zrusButton);
+        Button prebudujBtn = new Button("Prebuduj");
+        prebudujBtn.setOnAction(e -> {
+
+        });
+
+        buttonsRight.getChildren().addAll(addButton, deleteButton, searchButton, zrusButton, typPorovnani, prebudujBtn);
         return buttonsRight;
     }
 

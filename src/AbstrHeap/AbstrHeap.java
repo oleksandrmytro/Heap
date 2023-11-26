@@ -1,7 +1,7 @@
 package AbstrHeap;
 
 import abstrTable.AbstrLIFO;
-import abstrTable.eTypProhl;
+import enumTypy.eTypProhl;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

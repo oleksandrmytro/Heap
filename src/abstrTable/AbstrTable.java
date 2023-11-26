@@ -1,12 +1,9 @@
 package abstrTable;
 
-import static abstrTable.eTypProhl.HLOUBKA;
-import static abstrTable.eTypProhl.SIRKA;
+import enumTypy.eTypProhl;
+
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.Stack;
 
 public class AbstrTable<K extends Comparable<K>, V> {
 

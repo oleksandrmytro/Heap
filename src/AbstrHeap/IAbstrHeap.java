@@ -1,6 +1,6 @@
 package AbstrHeap;
 
-import abstrTable.eTypProhl;
+import enumTypy.eTypProhl;
 
 import java.util.Iterator;
 

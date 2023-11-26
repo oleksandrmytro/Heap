@@ -1,7 +1,8 @@
 package AgendaKraj;
 
 import abstrTable.Obec;
-import abstrTable.eTypProhl;
+import enumTypy.ePorovnani;
+import enumTypy.eTypProhl;
 import java.util.Iterator;
 
 public interface IAgenda {
@@ -10,7 +11,7 @@ public interface IAgenda {
     void vloz(Obec obec);
     Obec odeber(String key);
     Obec odeberMax();
-    void reoraginace(Obec[] array);
+    void reoraginace(ePorovnani typPorovnani);
     Iterator<Obec> vytvorIterator(eTypProhl typ);
     Obec generuj();
 }
