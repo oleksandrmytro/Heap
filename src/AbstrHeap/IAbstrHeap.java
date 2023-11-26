@@ -5,7 +5,7 @@ public interface IAbstrHeap<K extends Comparable<K>> {
     void prebuduj(K[] arr);
     void zrus();
     boolean jePrazdny();
-    void vloz(int data);
+    void vloz(K data);
     K odeberMax();
     K zpristupniMax();
     void vypis();
