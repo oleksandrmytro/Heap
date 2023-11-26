@@ -12,6 +12,9 @@ public class Obec implements Comparable<Obec>{
     private int celkem;
     private static ePorovnani aktualniEPorovnani = ePorovnani.NAZEV;
 
+    public Obec() {
+    }
+
     public Obec(int cisloKraje, int psc, String nazevObce, int pocetMuzu, int pocetZen) {
         this.cisloKraje = cisloKraje;
         this.psc = psc;
@@ -73,7 +76,7 @@ public class Obec implements Comparable<Obec>{
         this.celkem = celkem;
     }
 
-    public static void setAktualniPorovnani(ePorovnani aktualniEPorovnani) {
+    public void setAktualniPorovnani(ePorovnani aktualniEPorovnani) {
         Obec.aktualniEPorovnani = aktualniEPorovnani;
     }
 

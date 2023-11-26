@@ -32,6 +32,7 @@ public class MainFX extends Application {
     ObservableList<ePorovnani> porovnani = FXCollections.observableArrayList(ePorovnani.values());
     ComboBox typPorovnani = new ComboBox(porovnani);
     ComboBox typItrCB = new ComboBox(list);
+    Obec obec = new Obec();
     public static final String OBEC_FILE_NAME = "obce.txt";
 
     @Override
@@ -88,11 +89,21 @@ public class MainFX extends Application {
 
         Button prebudujBtn = new Button("Prebuduj");
         prebudujBtn.setOnAction(e -> {
-
+            obec.setAktualniPorovnani((ePorovnani) typPorovnani.getValue());
+            agenda.reoraginace(convertToArray());
         });
 
         buttonsRight.getChildren().addAll(addButton, deleteButton, searchButton, zrusButton, typPorovnani, prebudujBtn);
         return buttonsRight;
+    }
+
+    private Obec[] convertToArray() {
+        ObservableList<Obec> listData = obciListView.getItems();
+        Obec[] array = new Obec[listData.size()];
+        for (int i = 0; i < listData.size(); i++) {
+            array[i] = listData.get(i);
+        }
+        return array;
     }
 
     private HBox createButtonsBottom() {

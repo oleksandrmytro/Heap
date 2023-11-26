@@ -45,14 +45,14 @@ public class Agenda implements IAgenda {
     }
 
     @Override
-    public void reoraginace(ePorovnani typPorovnani) {
-
+    public void reoraginace(Obec[] arr) {
+        ah.reorganizace(arr);
     }
 
 
     @Override
     public Iterator<Obec> vytvorIterator(eTypProhl typ) {
-        return at.vytvorIterator(typ);
+        return ah.vypis(typ);
     }
 
     @Override

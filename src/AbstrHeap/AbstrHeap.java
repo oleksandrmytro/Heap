@@ -94,7 +94,7 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
         // новий елемент в кінець купи
         arr[n++] = new Arr<>(data);
 
-        fixUp(n);
+        fixUp(n-1);
 
     }
 
@@ -197,16 +197,19 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
 
                     @Override
                     public K next() {
-                        while (curr <= n) {
-                            lifo.vloz(curr);
+                        lifo.vloz(curr);
+                        while (curr * 2 <= n) {
                             curr = curr * 2;
+                            lifo.vloz(curr);
                         }
 
-                        curr = lifo.odeber();
-                        int result = curr;
-                        curr = curr * 2 + 1;
+                        int node = lifo.odeber();
+                        if (node * 2 + 1 <= n) {
+                            curr = node * 2  + 1;
+                            lifo.vloz(curr);
+                        }
 
-                        return arr[result].elem;
+                        return arr[node].elem;
                     }
                 };
             }
