@@ -30,7 +30,7 @@ public class MainFX extends Application {
     private ListView<Obec> obciListView;
     ObservableList<eTypProhl> list = FXCollections.observableArrayList(eTypProhl.values());
     ObservableList<ePorovnani> porovnani = FXCollections.observableArrayList(ePorovnani.values());
-    ChoiceBox<ePorovnani> typPorovnani = new ChoiceBox<>(porovnani);
+    ChoiceBox<ePorovnani> typPorovnaniCB = new ChoiceBox<>(porovnani);
     ChoiceBox<eTypProhl> typItrCB = new ChoiceBox<>(list);
     public static final String OBEC_FILE_NAME = "obce.txt";
 
@@ -63,30 +63,27 @@ public class MainFX extends Application {
         buttonsRight.setAlignment(Pos.CENTER);
 
         Button addButton = new Button("Přidat obec");
-        addButton.setPrefSize(100, 30);
+        addButton.setPrefSize(130, 30);
         addButton.setAlignment(Pos.CENTER);
         addButton.setOnAction(e -> addObec());
 
-        Button deleteButton = new Button("Vymazat obec");
-        deleteButton.setPrefSize(100, 30);
-        deleteButton.setAlignment(Pos.CENTER);
-        deleteButton.setOnAction(e -> deleteObec());
-
         Button deleteMaxBtn = new Button("Odeber Max");
-        deleteMaxBtn.setPrefSize(100, 30);
+        deleteMaxBtn.setPrefSize(130, 30);
         deleteMaxBtn.setAlignment(Pos.CENTER);
         deleteMaxBtn.setOnAction(e -> {
             agenda.odeberMax();
             obnov();
         });
 
-        Button searchButton = new Button("Hledat obec");
-        searchButton.setPrefSize(100, 30);
-        searchButton.setAlignment(Pos.CENTER);
-        searchButton.setOnAction(e -> searchObec());
+        Button selectMaxBtn = new Button("Zpristupni Max");
+        selectMaxBtn.setPrefSize(130, 30);
+        selectMaxBtn.setAlignment(Pos.CENTER);
+        selectMaxBtn.setOnAction(e -> {
+            obciListView.getSelectionModel().select(agenda.zpristupniMax());
+        });
 
         Button zrusButton = new Button("Zrusit");
-        zrusButton.setPrefSize(100, 30);
+        zrusButton.setPrefSize(130, 30);
         zrusButton.setAlignment(Pos.CENTER);
         zrusButton.setOnAction(e -> {
             obciListView.getSelectionModel().clearSelection();
@@ -95,23 +92,21 @@ public class MainFX extends Application {
         });
 
         Button prebudujBtn = new Button("Prebuduj");
-        typPorovnani.setValue(ePorovnani.POCET_OBYVATELU);
+        prebudujBtn.setPrefSize(130, 30);
+        typPorovnaniCB.setValue(ePorovnani.POCET_OBYVATELU);
+        typPorovnaniCB.setPrefSize(130, 30);
         prebudujBtn.setOnAction(e -> {
-            agenda.reorganizace(typPorovnani.getValue());
+            ePorovnani typPorovnani = typPorovnaniCB.getValue();
+            switch (typPorovnani) {
+                case NAZEV -> Obec.setAktualniPorovnani(ePorovnani.NAZEV);
+                case POCET_OBYVATELU -> Obec.setAktualniPorovnani(ePorovnani.POCET_OBYVATELU);
+            }
+            agenda.reorganizace();
             obnov();
         });
 
-        buttonsRight.getChildren().addAll(addButton, deleteButton, deleteMaxBtn, searchButton, zrusButton, typPorovnani, prebudujBtn);
+        buttonsRight.getChildren().addAll(addButton, deleteMaxBtn, selectMaxBtn, zrusButton, typPorovnaniCB, prebudujBtn);
         return buttonsRight;
-    }
-
-    private Obec[] convertToArray() {
-        ObservableList<Obec> listData = obciListView.getItems();
-        Obec[] array = new Obec[listData.size()];
-        for (int i = 0; i < listData.size(); i++) {
-            array[i] = listData.get(i);
-        }
-        return array;
     }
 
     private HBox createButtonsBottom() {
@@ -127,7 +122,7 @@ public class MainFX extends Application {
         saveButton.setAlignment(Pos.CENTER);
         saveButton.setOnAction(e -> {
             try {
-                UlozeniAnacteni.uloz(OBEC_FILE_NAME, agenda, (eTypProhl) typItrCB.getValue());
+                UlozeniAnacteni.uloz(OBEC_FILE_NAME, agenda, typItrCB.getValue());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -138,7 +133,7 @@ public class MainFX extends Application {
         loadButton.setAlignment(Pos.CENTER);
         loadButton.setOnAction(e -> {
             try {
-                UlozeniAnacteni.nacti(OBEC_FILE_NAME, agenda, (eTypProhl) typItrCB.getValue());
+                UlozeniAnacteni.nacti(OBEC_FILE_NAME, agenda, typItrCB.getValue());
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -229,29 +224,6 @@ public class MainFX extends Application {
         });
     }
 
-    private void deleteObec() {
-        agenda.odeber(obciListView.getSelectionModel().getSelectedItem().getNazevObce());
-        obnov();
-    }
-
-    private void searchObec() {
-        try {
-            TextInputDialog tid = new TextInputDialog();
-            tid.setTitle("Najdi obec");
-            tid.setHeaderText("Zadejte nazev obce");
-            tid.setContentText("nazev:");
-            Optional<String> result = tid.showAndWait();
-            if (result.isPresent()) {
-                String key = result.get();
-                Obec obec = agenda.najdi(key);
-                obciListView.getSelectionModel().select(obec);
-                obciListView.scrollTo(obec);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -263,8 +235,12 @@ public class MainFX extends Application {
         if (typProhl == eTypProhl.SIRKA) {
             itr = agenda.vytvorIterator(eTypProhl.SIRKA);
         }
+        switch (typPorovnaniCB.getValue()) {
+            case NAZEV -> Obec.setAktualniPorovnani(ePorovnani.NAZEV);
+            case POCET_OBYVATELU -> Obec.setAktualniPorovnani(ePorovnani.POCET_OBYVATELU);
+        }
+        agenda.reorganizace();
         while (itr.hasNext()) {
-            agenda.reorganizace(typPorovnani.getValue());
             obciListView.getItems().add(itr.next());
         }
     }

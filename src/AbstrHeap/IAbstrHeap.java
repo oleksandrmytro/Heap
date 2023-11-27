@@ -6,8 +6,8 @@ import enumTypy.eTypProhl;
 import java.util.Iterator;
 
 public interface IAbstrHeap<K extends Comparable<K>> {
-    void vybuduj();
-    void reorganizace(ePorovnani porovnani);
+    void vybuduj(K[] array);
+    void reorganizace();
     void zrus();
     boolean jePrazdny();
     void vloz(K data);

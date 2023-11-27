@@ -1,10 +1,7 @@
 package AbstrHeap;
 
 import abstrTable.AbstrLIFO;
-import abstrTable.Obec;
-import enumTypy.ePorovnani;
 import enumTypy.eTypProhl;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -29,49 +26,61 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
     }
 
     public AbstrHeap(int capacity) {
-        array = new Arr[capacity];
+        this.array = new Arr[capacity];
         this.capacity = capacity;
         this.currentHeapSize = 0;
     }
 
+
     @Override
-    public void vybuduj() {
-        for (int j = currentHeapSize / 2; j > 0; j--) {
+    public void vybuduj(K[] array) {
+        this.array = new Arr[array.length]; // Створення нового масиву
+        for (int i = 0; i < array.length; i++) {
+            this.array[i] = new Arr<>(array[i]);
+        }
+        this.currentHeapSize = array.length;
+        for (int j = currentHeapSize / 2; j >= 0; j--) {
             heapifyDown(j, currentHeapSize);
         }
     }
 
+
+
     private void heapifyDown(int index, int size) {
         int leftChild = leftChild(index);
         int rightChild = rightChild(index);
-        int smallest = index;
+        int largest = index;
 
-        if (leftChild < size && array[leftChild].elem.compareTo(array[index].elem) < 0) {
-            smallest = leftChild;
+        if (leftChild < size && array[leftChild].elem.compareTo(array[index].elem) > 0) {
+            largest = leftChild;
         }
-        if (rightChild < size && array[rightChild].elem.compareTo(array[smallest].elem) < 0) {
-            smallest = rightChild;
+        if (rightChild < size && array[rightChild].elem.compareTo(array[largest].elem) > 0) {
+            largest = rightChild;
         }
 
-        if (smallest != index) {
-            swap(array, index, smallest);
-            heapifyDown(smallest, size);
+        if (largest != index) {
+            swap(array, index, largest);
+            heapifyDown(largest, size);
         }
     }
 
 
 
     @Override
-    public void reorganizace(ePorovnani porovnani) {
-        Obec.setAktualniPorovnani(porovnani);
-        vybuduj();
+    public void reorganizace() {
+        K[] tempArray = (K[]) new Comparable[currentHeapSize];
+        for (int i = 0; i < currentHeapSize; i++) {
+            tempArray[i] = array[i].elem;
+        }
+        vybuduj(tempArray);
     }
 
     @Override
     public void zrus() {
-        this.capacity = 0;
-        this.array = null;
+        this.currentHeapSize = 0;
+        // array залишається ініціалізованим, але вважається порожнім
     }
+
 
     @Override
     public boolean jePrazdny() {
@@ -80,92 +89,64 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
 
     @Override
     public void vloz(K data) {
-        if (currentHeapSize == capacity) {
-            // Розширити масив, якщо потрібно
-            expandHeap();
+        if (array == null) {
+            array = new Arr[10];
+            capacity = 10;
         }
-        // Вставка нового елемента на кінець купи
-        int currentIndex = currentHeapSize++;
-        array[currentIndex] = new Arr<>(data);
 
-        // Відновлення властивостей купи
-        while (currentIndex != 0 && array[currentIndex].elem.compareTo(array[parent(currentIndex)].elem) < 0) {
-            swap(array, currentIndex, parent(currentIndex));
-            currentIndex = parent(currentIndex);
+        if (jePrazdny()) {
+            array[0] = new Arr<>(data); // Індексація починається з 0
+            currentHeapSize = 1;
+        } else {
+            if (currentHeapSize == array.length) {
+                expandHeap(); // Розширюємо купу, якщо потрібно
+            }
+            array[currentHeapSize] = new Arr<>(data);
+            currentHeapSize++;
+
+            // Просіювання нового елементу вгору
+            int index = currentHeapSize - 1;
+            while (index > 0 && array[parent(index)].elem.compareTo(array[index].elem) < 0) {
+                swap(array, index, parent(index));
+                index = parent(index);
+            }
         }
     }
 
     private void expandHeap() {
-        Arr[] newArray = new Arr[capacity * 2];
-        System.arraycopy(array, 0, newArray, 0, capacity);
+        Arr<K>[] newArray = new Arr[capacity * 2]; // Подвоєння розміру масиву
+        System.arraycopy(array, 0, newArray, 0, currentHeapSize); // Копіювання старого масиву в новий
         array = newArray;
-        capacity *= 2;
+        capacity = newArray.length;
     }
-
-
-//    private void fixUp(int curr) {
-//        /*
-//        arr[curr].ell.compareTo(arr[parent(curr)) < 0 перевіряє чи поточний елемент
-//        менший за елемент у батьківському вузлі. Тобто воно буде міняти місцями новий елемент
-//        доті до коли не знайде своє місце(батьківський буде менший за новий)
-//        */
-//        while(curr > 1 && array[curr].elem.compareTo(array[parent(curr)].elem) < 0) {
-//            Arr<K> temp = array[curr];
-//            array[curr] = array[parent(curr)];
-//            array[parent(curr)] = temp;
-//
-//            curr = parent(curr);
-//        }
-//    }
 
 
     @Override
     public K odeberMax() {
-        if (jePrazdny()) throw new NoSuchElementException("Heap je prazdny");
-        /*
-        список розділяється на дві частини де ліва це батьківські
-        а права дочірні тому ми ділим список n / 2
-        а + 1 це для того щоб перейти до першого дочірного елемента
-        */
-
-        int firstLeafIndex = firstLeafIndex(capacity);
-        K maxElement = array[firstLeafIndex].elem;
-        int maxElementIndex = firstLeafIndex;
-
-        // Проходимось по листам
-        for (int i = firstLeafIndex; i <= capacity; i++) {
-            if (array[i].elem.compareTo(maxElement) > 0) {
-                maxElement = array[i].elem;
-                maxElementIndex = i;
-            }
+        if (jePrazdny()) {
+            throw new NoSuchElementException("Heap je prazdny");
         }
+        // Зберігаємо максимальний елемент
+        K maxElement = array[0].elem;
 
-        // Видалення елемента
-        Arr<K> temp = array[maxElementIndex];
-        array[maxElementIndex] = array[capacity];
-        array[capacity] = null;
-        capacity--;
+        // Заміна кореневого елемента останнім елементом у купі
+        array[0] = array[currentHeapSize - 1];
+        currentHeapSize--;
 
-        if (maxElementIndex <= capacity) {
-            heapifyDown(maxElementIndex, capacity);
-        }
-        return temp.elem;
+        // Просіювання нового кореневого елемента вниз
+        heapifyDown(0, currentHeapSize);
+
+        return maxElement;
     }
 
     @Override
     public K zpristupniMax() {
-        if (jePrazdny()) throw new NoSuchElementException("Heap je prazdny");
-
-        int firstLeafIndex = firstLeafIndex(capacity);
-        K maxElement = array[firstLeafIndex].elem;
-
-        for (int i = firstLeafIndex; i <= capacity; i++) {
-            if (array[i].elem.compareTo(maxElement) > 0) {
-                maxElement = array[i].elem;
-            }
+        if (jePrazdny()) {
+            throw new NoSuchElementException("Heap je prazdny");
         }
-        return maxElement;
+        return array[0].elem;
     }
+
 
     @Override
     public Iterator<K> vypis(eTypProhl typ) {

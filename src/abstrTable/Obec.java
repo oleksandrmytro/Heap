@@ -88,11 +88,8 @@ public class Obec implements Comparable<Obec>{
             return this.nazevObce.compareTo(o.nazevObce);
         }
     }
-
     @Override
     public String toString() {
         return nazevObce + ", cislo: " + cisloKraje + ", psc: " + psc + ", muzi: " + pocetMuzu + ", zeny: " + pocetZen + ", celkem: " + celkem;
     }
-    
-    
 }

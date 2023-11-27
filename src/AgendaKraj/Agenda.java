@@ -44,9 +44,13 @@ public class Agenda implements IAgenda {
         return ah.odeberMax();
     }
 
+    public Obec zpristupniMax() {
+        return ah.zpristupniMax();
+    }
+
     @Override
-    public void reorganizace(ePorovnani porovnani) {
-        ah.reorganizace(porovnani);
+    public void reorganizace() {
+        ah.reorganizace();
     }
 
 
@@ -66,7 +70,7 @@ public class Agenda implements IAgenda {
     }
     
     public void zrus() {
-        at.zrus();
+        ah.zrus();
     }
     
 }
