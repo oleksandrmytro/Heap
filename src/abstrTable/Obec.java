@@ -76,14 +76,14 @@ public class Obec implements Comparable<Obec>{
         this.celkem = celkem;
     }
 
-    public void setAktualniPorovnani(ePorovnani aktualniEPorovnani) {
+    public static void setAktualniPorovnani(ePorovnani aktualniEPorovnani) {
         Obec.aktualniEPorovnani = aktualniEPorovnani;
     }
 
     @Override
     public int compareTo(Obec o) {
         if (aktualniEPorovnani == ePorovnani.POCET_OBYVATELU) {
-            return Integer.compare(this.celkem, o.celkem);
+            return Integer.compare(celkem, o.celkem);
         } else {
             return this.nazevObce.compareTo(o.nazevObce);
         }

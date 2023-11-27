@@ -11,7 +11,7 @@ public interface IAgenda {
     void vloz(Obec obec);
     Obec odeber(String key);
     Obec odeberMax();
-    void reoraginace(Obec[] arr);
+    void reorganizace(ePorovnani porovnani);
     Iterator<Obec> vytvorIterator(eTypProhl typ);
     Obec generuj();
 }

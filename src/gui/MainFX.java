@@ -30,9 +30,8 @@ public class MainFX extends Application {
     private ListView<Obec> obciListView;
     ObservableList<eTypProhl> list = FXCollections.observableArrayList(eTypProhl.values());
     ObservableList<ePorovnani> porovnani = FXCollections.observableArrayList(ePorovnani.values());
-    ComboBox typPorovnani = new ComboBox(porovnani);
-    ComboBox typItrCB = new ComboBox(list);
-    Obec obec = new Obec();
+    ChoiceBox<ePorovnani> typPorovnani = new ChoiceBox<>(porovnani);
+    ChoiceBox<eTypProhl> typItrCB = new ChoiceBox<>(list);
     public static final String OBEC_FILE_NAME = "obce.txt";
 
     @Override
@@ -73,6 +72,14 @@ public class MainFX extends Application {
         deleteButton.setAlignment(Pos.CENTER);
         deleteButton.setOnAction(e -> deleteObec());
 
+        Button deleteMaxBtn = new Button("Odeber Max");
+        deleteMaxBtn.setPrefSize(100, 30);
+        deleteMaxBtn.setAlignment(Pos.CENTER);
+        deleteMaxBtn.setOnAction(e -> {
+            agenda.odeberMax();
+            obnov();
+        });
+
         Button searchButton = new Button("Hledat obec");
         searchButton.setPrefSize(100, 30);
         searchButton.setAlignment(Pos.CENTER);
@@ -88,12 +95,13 @@ public class MainFX extends Application {
         });
 
         Button prebudujBtn = new Button("Prebuduj");
+        typPorovnani.setValue(ePorovnani.POCET_OBYVATELU);
         prebudujBtn.setOnAction(e -> {
-            obec.setAktualniPorovnani((ePorovnani) typPorovnani.getValue());
-            agenda.reoraginace(convertToArray());
+            agenda.reorganizace(typPorovnani.getValue());
+            obnov();
         });
 
-        buttonsRight.getChildren().addAll(addButton, deleteButton, searchButton, zrusButton, typPorovnani, prebudujBtn);
+        buttonsRight.getChildren().addAll(addButton, deleteButton, deleteMaxBtn, searchButton, zrusButton, typPorovnani, prebudujBtn);
         return buttonsRight;
     }
 
@@ -108,7 +116,7 @@ public class MainFX extends Application {
 
     private HBox createButtonsBottom() {
         Label typItrLbl = new Label("Typ iteratora");
-
+        typItrCB.setValue(eTypProhl.SIRKA);
         typItrCB.setPrefSize(100, 30);
         typItrCB.setOnAction(e -> obnov());
 
@@ -121,7 +129,7 @@ public class MainFX extends Application {
             try {
                 UlozeniAnacteni.uloz(OBEC_FILE_NAME, agenda, (eTypProhl) typItrCB.getValue());
             } catch (IOException ex) {
-                ex.getMessage();
+                throw new RuntimeException(ex);
             }
         });
 
@@ -132,7 +140,7 @@ public class MainFX extends Application {
             try {
                 UlozeniAnacteni.nacti(OBEC_FILE_NAME, agenda, (eTypProhl) typItrCB.getValue());
             } catch (IOException ex) {
-                ex.getMessage();
+                throw new RuntimeException(ex);
             }
             obnov();
         });
@@ -240,7 +248,7 @@ public class MainFX extends Application {
                 obciListView.scrollTo(obec);
             }
         } catch (Exception e) {
-            e.getMessage();
+            throw new RuntimeException(e);
         }
     }
 
@@ -249,13 +257,14 @@ public class MainFX extends Application {
     }
 
     private void obnov() {
-        eTypProhl typProhl = (eTypProhl) typItrCB.getValue();
+        eTypProhl typProhl = typItrCB.getValue();
         Iterator<Obec> itr = agenda.vytvorIterator(eTypProhl.HLOUBKA);
         obciListView.getItems().clear();
         if (typProhl == eTypProhl.SIRKA) {
             itr = agenda.vytvorIterator(eTypProhl.SIRKA);
         }
         while (itr.hasNext()) {
+            agenda.reorganizace(typPorovnani.getValue());
             obciListView.getItems().add(itr.next());
         }
     }

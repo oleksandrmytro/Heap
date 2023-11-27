@@ -1,6 +1,8 @@
 package AbstrHeap;
 
 import abstrTable.AbstrLIFO;
+import abstrTable.Obec;
+import enumTypy.ePorovnani;
 import enumTypy.eTypProhl;
 
 import java.util.Iterator;
@@ -16,102 +18,105 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
         }
     }
 
-    private Arr<K>[] arr;
-    private int n;
+    private Arr<K>[] array;
+    private int capacity;
+    private int currentHeapSize;
+
+    private void swap(Arr<K>[] arr, int a, int b) {
+        Arr<K> temp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = temp;
+    }
+
+    public AbstrHeap(int capacity) {
+        array = new Arr[capacity];
+        this.capacity = capacity;
+        this.currentHeapSize = 0;
+    }
+
     @Override
     public void vybuduj() {
-        for (int j = n / 2; j > 0; j--) {
-            heapifyDown(j, n);
+        for (int j = currentHeapSize / 2; j > 0; j--) {
+            heapifyDown(j, currentHeapSize);
         }
     }
 
     private void heapifyDown(int index, int size) {
-        K temp = arr[index].elem;
-        int child;
-
-        while (index * 2 <= size) { // перевіряє чи існує лівий дочірний вузол`
-            child = getMinChild(index, size);
-            // перевіряє чи дочірний вузол менший за поточний
-            if (arr[child].elem.compareTo(temp) < 0) {
-                arr[index] = arr[child];
-                index = child;
-            } else {
-                break;
-            }
-        }
-        arr[index] = new Arr<>(temp);
-    }
-
-    private int getMinChild(int index, int size) {
         int leftChild = leftChild(index);
-        int rightChild = leftChild + 1;
-        /*
-        перевірка на те чи правий дочірній вузол існує(rightChild <= size)
-        і чи він менший за лівий arr[rightChild].ell.compareTo(arr[leftChild].ell) < 0
-        якщо так то повертає правий, якщо ні то лівий
-        */
-        if (rightChild <= size && arr[rightChild].elem.
-                compareTo(arr[leftChild].elem) < 0) {
-            return rightChild;
+        int rightChild = rightChild(index);
+        int smallest = index;
+
+        if (leftChild < size && array[leftChild].elem.compareTo(array[index].elem) < 0) {
+            smallest = leftChild;
         }
-        return leftChild;
+        if (rightChild < size && array[rightChild].elem.compareTo(array[smallest].elem) < 0) {
+            smallest = rightChild;
+        }
+
+        if (smallest != index) {
+            swap(array, index, smallest);
+            heapifyDown(smallest, size);
+        }
     }
+
+
 
     @Override
-    public void reorganizace(K[] array) {
-        n = array.length;
-        arr = new Arr[n + 1];
-        for(int i = 0; i < n; i++) {
-            arr[i + 1] = new Arr<>(array[i]);
-        }
+    public void reorganizace(ePorovnani porovnani) {
+        Obec.setAktualniPorovnani(porovnani);
         vybuduj();
     }
 
     @Override
     public void zrus() {
-        this.n = 0;
-        this.arr = null;
+        this.capacity = 0;
+        this.array = null;
     }
 
     @Override
     public boolean jePrazdny() {
-        return arr == null;
+        return array == null;
     }
 
     @Override
     public void vloz(K data) {
-        // перевіряємо чи існує купа, якщо ні то створюємо нову
-        if (arr == null) {
-            arr = new Arr[10];
-            n = 0;
+        if (currentHeapSize == capacity) {
+            // Розширити масив, якщо потрібно
+            expandHeap();
         }
-        // перевіряємо чи достатньо місця, якщо ні то збільшуєм
-        if (n + 1 == arr.length) {
-            Arr<K>[] newArr = new Arr[arr.length * 2];
-            System.arraycopy(arr, 0, newArr, 0, arr.length);
-            arr = newArr;
-        }
-        // новий елемент в кінець купи
-        arr[n++] = new Arr<>(data);
+        // Вставка нового елемента на кінець купи
+        int currentIndex = currentHeapSize++;
+        array[currentIndex] = new Arr<>(data);
 
-        fixUp(n-1);
-
-    }
-
-    private void fixUp(int curr) {
-        /*
-        arr[curr].ell.compareTo(arr[parent(curr)) < 0 перевіряє чи поточний елемент
-        менший за елемент у батьківському вузлі. Тобто воно буде міняти місцями новий елемент
-        доті до коли не знайде своє місце(батьківський буде менший за новий)
-        */
-        while(curr > 1 && arr[curr].elem.compareTo(arr[parent(curr)].elem) < 0) {
-            Arr<K> temp = arr[curr];
-            arr[curr] = arr[parent(curr)];
-            arr[parent(curr)] = temp;
-
-            curr = parent(curr);
+        // Відновлення властивостей купи
+        while (currentIndex != 0 && array[currentIndex].elem.compareTo(array[parent(currentIndex)].elem) < 0) {
+            swap(array, currentIndex, parent(currentIndex));
+            currentIndex = parent(currentIndex);
         }
     }
+
+    private void expandHeap() {
+        Arr[] newArray = new Arr[capacity * 2];
+        System.arraycopy(array, 0, newArray, 0, capacity);
+        array = newArray;
+        capacity *= 2;
+    }
+
+
+//    private void fixUp(int curr) {
+//        /*
+//        arr[curr].ell.compareTo(arr[parent(curr)) < 0 перевіряє чи поточний елемент
+//        менший за елемент у батьківському вузлі. Тобто воно буде міняти місцями новий елемент
+//        доті до коли не знайде своє місце(батьківський буде менший за новий)
+//        */
+//        while(curr > 1 && array[curr].elem.compareTo(array[parent(curr)].elem) < 0) {
+//            Arr<K> temp = array[curr];
+//            array[curr] = array[parent(curr)];
+//            array[parent(curr)] = temp;
+//
+//            curr = parent(curr);
+//        }
+//    }
 
 
     @Override
@@ -123,26 +128,26 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
         а + 1 це для того щоб перейти до першого дочірного елемента
         */
 
-        int firstLeafIndex = firstLeafIndex(n);
-        K maxElement = arr[firstLeafIndex].elem;
+        int firstLeafIndex = firstLeafIndex(capacity);
+        K maxElement = array[firstLeafIndex].elem;
         int maxElementIndex = firstLeafIndex;
 
         // Проходимось по листам
-        for (int i = firstLeafIndex; i <= n; i++) {
-            if (arr[i].elem.compareTo(maxElement) > 0) {
-                maxElement = arr[i].elem;
+        for (int i = firstLeafIndex; i <= capacity; i++) {
+            if (array[i].elem.compareTo(maxElement) > 0) {
+                maxElement = array[i].elem;
                 maxElementIndex = i;
             }
         }
 
         // Видалення елемента
-        Arr<K> temp = arr[maxElementIndex];
-        arr[maxElementIndex] = arr[n];
-        arr[n] = null;
-        n--;
+        Arr<K> temp = array[maxElementIndex];
+        array[maxElementIndex] = array[capacity];
+        array[capacity] = null;
+        capacity--;
 
-        if (maxElementIndex <= n) {
-            heapifyDown(maxElementIndex, n);
+        if (maxElementIndex <= capacity) {
+            heapifyDown(maxElementIndex, capacity);
         }
         return temp.elem;
     }
@@ -151,12 +156,12 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
     public K zpristupniMax() {
         if (jePrazdny()) throw new NoSuchElementException("Heap je prazdny");
 
-        int firstLeafIndex = firstLeafIndex(n);
-        K maxElement = arr[firstLeafIndex].elem;
+        int firstLeafIndex = firstLeafIndex(capacity);
+        K maxElement = array[firstLeafIndex].elem;
 
-        for (int i = firstLeafIndex; i <= n; i++) {
-            if (arr[i].elem.compareTo(maxElement) > 0) {
-                maxElement = arr[i].elem;
+        for (int i = firstLeafIndex; i <= capacity; i++) {
+            if (array[i].elem.compareTo(maxElement) > 0) {
+                maxElement = array[i].elem;
             }
         }
         return maxElement;
@@ -167,66 +172,85 @@ public class AbstrHeap<K extends Comparable<K>> implements IAbstrHeap<K> {
         switch (typ) {
             case SIRKA -> {
                 return new Iterator<>() {
-
                     int i = 0;
 
                     @Override
                     public boolean hasNext() {
-                        return i + 1 <= n;
+                        return i < currentHeapSize;
                     }
 
                     @Override
                     public K next() {
                         if (!hasNext()) throw new NoSuchElementException();
-                        i++;
-                        return arr[i].elem;
+                        return array[i++].elem;
                     }
                 };
             }
 
-            case HLOUBKA -> {
-                AbstrLIFO<Integer> lifo = new AbstrLIFO<>();
-                return new Iterator<>() {
 
-                    int curr = 1;
+            case HLOUBKA -> {
+                return new Iterator<>() {
+                    final AbstrLIFO<Integer> lifo = new AbstrLIFO<>();
+                    boolean initialized = false;
 
                     @Override
                     public boolean hasNext() {
-                        return curr <= n || !lifo.jePrazdny();
+                        if (!initialized) {
+                            initialize();
+                            initialized = true;
+                        }
+                        return !lifo.jePrazdny();
+                    }
+
+                    private void initialize() {
+                        int index = 0;
+                        while (index < currentHeapSize) {
+                            lifo.vloz(index);
+                            index = leftChild(index);
+                        }
                     }
 
                     @Override
                     public K next() {
-                        lifo.vloz(curr);
-                        while (curr * 2 <= n) {
-                            curr = curr * 2;
-                            lifo.vloz(curr);
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
                         }
 
-                        int node = lifo.odeber();
-                        if (node * 2 + 1 <= n) {
-                            curr = node * 2  + 1;
-                            lifo.vloz(curr);
+                        int index = lifo.odeber();
+                        K result = array[index].elem;
+
+                        int rightIndex = rightChild(index);
+                        if (rightIndex < currentHeapSize) {
+                            int nextIndex = rightIndex;
+                            while (nextIndex < currentHeapSize) {
+                                lifo.vloz(nextIndex);
+                                nextIndex = leftChild(nextIndex);
+                            }
                         }
 
-                        return arr[node].elem;
+                        return result;
                     }
                 };
             }
+
         }
         return null;
     }
 
     private int leftChild(int i) {
-        return 2 * i;
+        return 2 * i + 1;
+    }
+
+    private int rightChild(int i) {
+        return 2 * i + 2;
     }
 
     private int parent(int i) {
-        return i / 2;
+        return (i - 1) / 2;
     }
 
     private int firstLeafIndex(int n) {
-        return n / 2 + 1;
+        return n / 2;
     }
 
 

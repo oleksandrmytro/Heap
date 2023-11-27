@@ -12,16 +12,16 @@ import nacteniAulozeni.UlozeniAnacteni;
 
 public class Agenda implements IAgenda {
 
-    private AbstrTable<Obec, Obec> at = new AbstrTable<>();
-    private AbstrHeap<Obec> ah = new AbstrHeap<Obec>();
-    private Random random = new Random();
+    private final AbstrTable<Obec, Obec> at = new AbstrTable<>();
+    private final AbstrHeap<Obec> ah = new AbstrHeap<Obec>(10);
+    private final Random random = new Random();
     
     @Override
     public void importDat() {
         try {
             UlozeniAnacteni.nacti("obce.txt", this, eTypProhl.SIRKA);
         } catch (IOException ex) {
-            ex.getMessage();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -41,12 +41,12 @@ public class Agenda implements IAgenda {
 
     @Override
     public Obec odeberMax() {
-        return null;
+        return ah.odeberMax();
     }
 
     @Override
-    public void reoraginace(Obec[] arr) {
-        ah.reorganizace(arr);
+    public void reorganizace(ePorovnani porovnani) {
+        ah.reorganizace(porovnani);
     }
 
 
@@ -60,8 +60,8 @@ public class Agenda implements IAgenda {
         int cisloKraje = random.nextInt(1000 - 1 + 1) + 1;
         int psc = random.nextInt(99999 - 10000 + 1) + 10000;
         String nazev = "Obec" + random.nextInt(1000) + 1;
-        int pocetMuzu = random.nextInt(100000 - 0 + 1);
-        int pocetZen = random.nextInt(100000 - 0 + 1);
+        int pocetMuzu = random.nextInt(100000 + 1);
+        int pocetZen = random.nextInt(100000 + 1);
         return new Obec(cisloKraje, psc, nazev, pocetMuzu, pocetZen);
     }
     
